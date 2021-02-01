@@ -56,14 +56,19 @@ const ItemWrapper = styled.div`
   margin: 16px;
 `;
 
-export const Foods = ({match}) => {
+
+const submitOrder = () => {
+  console.log("登録ボタンが押された！")
+}
+
+
+export const Foods=({match}) => {
   const [foodsState, dispatch] = useReducer(foodsReducer, foodsInitialState);
   const initialState = {
     isOpenOrderDialog: false,
     selectedFood: null,
     selectedFoodCount: 1,
   }
-
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
@@ -77,7 +82,7 @@ export const Foods = ({match}) => {
         }
       });
     })
-  }, [])
+  }, []);
 
   return (
     <Fragment>
@@ -122,14 +127,31 @@ export const Foods = ({match}) => {
       </FoodsList>
       {
         state.isOpenOrderDialog &&
+
+          // --- ここから修正 ---
           <FoodOrderDialog
-            food={state.selectedFood}
             isOpen={state.isOpenOrderDialog}
+            food={state.selectedFood}
+            countNumber={state.selectedFoodCount}
+            onClickCountUp={() => setState({
+              ...state,
+              selectedFoodCount: state.selectedFoodCount + 1,
+            })}
+            onClickCountDown={() => setState({
+              ...state,
+              selectedFoodCount: state.selectedFoodCount - 1,
+            })}
+            // 先ほど作った関数を渡します
+            onClickOrder={() => submitOrder()}
+            // モーダルを閉じる時はすべてのstateを初期化する
             onClose={() => setState({
               ...state,
               isOpenOrderDialog: false,
+              selectedFood: null,
+              selectedFoodCount: 1,
             })}
           />
+          // --- ここまで修正 ---
       }
     </Fragment>
   )
