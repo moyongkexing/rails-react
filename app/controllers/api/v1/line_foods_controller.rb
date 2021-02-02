@@ -4,18 +4,38 @@ module Api
       before_action :set_food, only: %i[create replace]
       def index
         line_foods = LineFood.active.all
+        # if line_foods.exists?
+        #   render json: {
+        #     line_food_ids: line_foods.map { |line_food| line_food.id },
+        #     restaurant: line_foods[0].restaurant,
+        #     count: line_foods.sum { |line_food| line_food[:count] },
+        #     amount: line_foods.sum { |line_food| line_food.total_amount },
+        #   }, status: :ok
+        # else
+        #   render json: {}, status: :no_content
+        # end
         if line_foods.exists?
+          line_foods_ids = []
+          count = 0
+          amount = 0
+
+          line_foods.each do |line_food|
+            line_food_ids << line_food.id
+            count += line_food[:count]
+            amout += line_food.total_amout
+          end
+
           render json: {
-            line_food_ids: line_foods.map { |line_food| line_food.id },
+            line_food_ids: line_food_ids,
             restaurant: line_foods[0].restaurant,
-            count: line_foods.sum { |line_food| line_food[:count] },
-            amount: line_foods.sum { |line_food| line_food.total_amount },
-          }, status: :ok
+            count: count,
+            amount: amount,
+          }, status: ok
         else
           render json: {}, status: :no_content
         end
       end
-
+      
       def create
         if LineFood.active.other_restaurant(@ordered_food.restaurant.id).exists?
           return render json: {
